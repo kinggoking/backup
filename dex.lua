@@ -10664,7 +10664,7 @@ local function disassemble(a1, showOps)
         local output = "";
         
         local function addTabSpace(depth)
-            output = output .. string.rep("    ", depth)
+            output = output .. string.rep("    ", "")
         end
         
         -- using function name (this will be removed & done outside of readProto)
@@ -10693,7 +10693,7 @@ local function disassemble(a1, showOps)
         depth = depth + 1
         
         for i = 1,proto.numParams do
-            addTabSpace(depth);
+            addTabSpace(depth)
             output = output .. string.format("local var%i = arg%i\n", i - 1, i - 1);
         end
         
