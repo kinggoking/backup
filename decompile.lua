@@ -319,7 +319,7 @@ local function disassemble(a1, showOps)
 
     assert(bcode, "Failed to fetch " .. a1.ClassName .. " bytecode")
 
-    local output = ""
+    local output = "---"..a1:GetFullName().."---\n---[OP_KING_DECOMPILER]---\n---THIS SCRIPT WAS DECOMPILED BY KINGOKING---\n"
     local mainProto, protoTable, stringTable = deserialize(bcode)
     local luauOpTable = getluauoptable()
 
@@ -339,7 +339,7 @@ local function disassemble(a1, showOps)
         local output = ""
 
         local function addTabSpace(depth)
-            output = output .. string.rep("    ", "")
+            output = output .. string.rep("    ", depth)
         end
 
         -- using function name (this will be removed & done outside of readProto)
@@ -350,7 +350,7 @@ local function disassemble(a1, showOps)
         end
 
         for i = 1, proto.numParams do
-            output = output .. "arg" .. (i - 1) -- args coincide with stack index
+            output = output .. "king_arg" .. (i - 1) -- args coincide with stack index
             if i < proto.numParams then
                 output = output .. ", "
             end
@@ -369,7 +369,7 @@ local function disassemble(a1, showOps)
 
         for i = 1, proto.numParams do
             addTabSpace(depth)
-            output = output .. string.format("local var%i = arg%i\n", i - 1, i - 1)
+            output = output .. string.format("local king_var%i = king_arg%i\n", i - 1, i - 1)
         end
 
         local refData = {}
@@ -401,7 +401,7 @@ local function disassemble(a1, showOps)
                     end
                 end
 
-                output = output .. tostring(codeIndex) .. ".   "
+                output = output .. "   "
 
                 if showOps and opinfo then
                     local str = opinfo.name .. string.rep(" ", 16 - string.len(opinfo.name))
@@ -482,7 +482,7 @@ local function disassemble(a1, showOps)
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
                             string.format(
-                                "var%i = %s",
+                                "king_var%i = %s",
                                 A,
                                 (type(k.value) == "string") and ('"' .. k.value .. '"') or tostring(k.value)
                             )
@@ -492,56 +492,56 @@ local function disassemble(a1, showOps)
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
                             string.format(
-                                "var%i = %s",
+                                "king_var%i = %s",
                                 A,
                                 (type(k.value) == "string") and ('"' .. k.value .. '"') or tostring(k.value)
                             )
                 elseif opc == getOpCode("LOADB") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = %s", A, tostring(B == 1))
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = %s", A, tostring(B == 1))
                 elseif opc == getOpCode("LOADN") then
                     output =
-                        output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = %s", A, tostring(Bx))
+                        output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = %s", A, tostring(Bx))
                 elseif opc == getOpCode("GETUPVAL") then
                     output =
-                        output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = upvalues[%i]", A, B)
+                        output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_upvalues[%i]", A, B)
                 elseif opc == getOpCode("SETUPVAL") then
-                    output = output .. string.format("upvalues[%i] = var%i", B, A)
+                    output = output .. string.format("king_upvalues[%i] = var%i", B, A)
                 elseif opc == getOpCode("MOVE") then
-                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i", A, B)
+                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i", A, B)
                 elseif opc == getOpCode("LEN") then
-                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = #var%i", A, B)
+                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = #king_var%i", A, B)
                 elseif opc == getOpCode("UNM") then
-                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = -var%i", A, B)
+                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = -king_var%i", A, B)
                 elseif opc == getOpCode("NOT") then
-                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = not var%i", A, B)
+                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = not king_var%i", A, B)
                 elseif opc == getOpCode("GETVARARGS") then
-                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = ...", A)
+                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = ...", A)
                 elseif opc == getOpCode("CONCAT") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i .. var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i .. king_var%i", A, B, C)
                 elseif opc == getOpCode("AND") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i and var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i and king_var%i", A, B, C)
                 elseif opc == getOpCode("OR") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i or var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i or king_var%i", A, B, C)
                 elseif opc == getOpCode("ANDK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i and %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i and %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("ORK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i or %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i or %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("FASTCALL") then
                     output = output .. string.format("FASTCALL[id=%i]()", A, B)
                 elseif opc == getOpCode("FASTCALL2") then
@@ -559,7 +559,7 @@ local function disassemble(a1, showOps)
 
                         output =
                             output ..
-                            (isVarDefined(A) and "" or "local ") .. string.format("var%i = %s", A, tostring(k1.value))
+                            (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = %s", A, tostring(k1.value))
                     elseif indexCount == 2 then
                         local k1 = proto.kTable[cacheIndex1 + 1]
                         local k2 = proto.kTable[cacheIndex2 + 1]
@@ -567,7 +567,7 @@ local function disassemble(a1, showOps)
                         output =
                             output ..
                             (isVarDefined(A) and "" or "local ") ..
-                                string.format('var%i = %s["%s"]', A, k1.value, tostring(k2.value))
+                                string.format('king_var%i = %s["%s"]', A, k1.value, tostring(k2.value))
                     elseif indexCount == 3 then
                         local k1 = proto.kTable[cacheIndex1 + 1]
                         local k2 = proto.kTable[cacheIndex2 + 1]
@@ -577,7 +577,7 @@ local function disassemble(a1, showOps)
                             output ..
                             (isVarDefined(A) and "" or "local ") ..
                                 string.format(
-                                    'var%i = %s["%s"]["%s"]',
+                                    'king_var%i = %s["%s"]["%s"]',
                                     A,
                                     k1.value,
                                     tostring(k2.value),
@@ -588,28 +588,28 @@ local function disassemble(a1, showOps)
                     end
                 elseif opc == getOpCode("GETGLOBAL") then
                     local k = proto.kTable[aux + 1] or nilValue
-                    output = output .. string.format("var%i = %s", A, tostring(k.value))
+                    output = output .. string.format("king_var%i = %s", A, tostring(k.value))
                 elseif opc == getOpCode("SETGLOBAL") then
                     local k = proto.kTable[aux + 1] or nilValue
-                    output = output .. string.format("%s = var%i", tostring(k.value), A)
+                    output = output .. string.format("%s = king_var%i", tostring(k.value), A)
                 elseif opc == getOpCode("GETTABLE") then
                     output =
-                        output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i[var%i]", A, B, C)
+                        output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i[king_var%i]", A, B, C)
                 elseif opc == getOpCode("SETTABLE") then
-                    output = output .. string.format("var%i[var%i] = var%i", B, C, A)
+                    output = output .. string.format("king_var%i[king_var%i] = king_var%i", B, C, A)
                 elseif opc == getOpCode("GETTABLEN") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i[%i]", A, B, C - 1)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i[%i]", A, B, C - 1)
                 elseif opc == getOpCode("SETTABLEN") then
-                    output = output .. string.format("var%i[%i] = var%i", B, C - 1, A)
+                    output = output .. string.format("king_var%i[%i] = king_var%i", B, C - 1, A)
                 elseif opc == getOpCode("GETTABLEKS") then
                     local k = proto.kTable[aux + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
                             string.format(
-                                "var%i = var%i[%s]",
+                                "king_var%i = king_var%i[%s]",
                                 A,
                                 B,
                                 (type(k.value) == "string") and ('"' .. k.value .. '"') or tostring(k.value)
@@ -619,20 +619,20 @@ local function disassemble(a1, showOps)
                     output =
                         output ..
                         string.format(
-                            "var%i[%s] = var%i",
+                            "king_var%i[%s] = king_var%i",
                             B,
                             (type(k.value) == "string") and ('"' .. k.value .. '"') or tostring(k.value),
                             A
                         )
                 elseif opc == getOpCode("NAMECALL") then
                     local k = proto.kTable[aux + 1] or nilValue
-                    nameCall = string.format("var%i:%s", B, tostring(k.value))
+                    nameCall = string.format("king_var%i:%s", B, tostring(k.value))
                     markedAux = true
                 elseif opc == getOpCode("NFORPREP") then
                     output =
                         output ..
                         string.format(
-                            "nforprep start - [escape at #%i] -- var%i = iterator",
+                            "nforprep start - [escape at #%i] -- king_var%i = iterator",
                             (codeIndex + sBx) + 1,
                             A + 3
                         )
@@ -642,7 +642,7 @@ local function disassemble(a1, showOps)
                     output =
                         output ..
                         string.format(
-                            "pairsprep start - [escape at #%i] -- var%i = key, var%i = value",
+                            "pairsprep start - [escape at #%i] -- king_var%i = key, king_var%i = value",
                             (codeIndex + sBx) + 1,
                             A + 3,
                             A + 4
@@ -653,7 +653,7 @@ local function disassemble(a1, showOps)
                     output =
                         output ..
                         string.format(
-                            "ipairsprep start [escape at #%i] -- var%i = key, var%i = value",
+                            "ipairsprep start [escape at #%i] -- king_var%i = key, king_var%i = value",
                             (codeIndex + sBx) + 1,
                             A + 3,
                             A + 4
@@ -677,7 +677,7 @@ local function disassemble(a1, showOps)
                     output =
                         output ..
                         string.format(
-                            "goto #%i if var%i == %s",
+                            "goto #%i if king_var%i == %s",
                             codeIndex + sBx,
                             A,
                             (type(k.value) == "string") and ('"' .. k.value .. '"') or tostring(k.value)
@@ -688,138 +688,138 @@ local function disassemble(a1, showOps)
                     output =
                         output ..
                         string.format(
-                            "goto #%i if var%i ~= %s",
+                            "goto #%i if king_var%i ~= %s",
                             codeIndex + sBx,
                             A,
                             (type(k.value) == "string") and ('"' .. k.value .. '"') or tostring(k.value)
                         )
                 elseif opc == getOpCode("JUMPIF") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if var%i", codeIndex + sBx, A)
+                    output = output .. string.format("goto #%i if king_var%i", codeIndex + sBx, A)
                 elseif opc == getOpCode("JUMPIFNOT") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if not var%i", codeIndex + sBx, A)
+                    output = output .. string.format("goto #%i if not king_var%i", codeIndex + sBx, A)
                 elseif opc == getOpCode("JUMPIFEQ") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if var%i == var%i", codeIndex + sBx, A, aux)
+                    output = output .. string.format("goto #%i if king_var%i == king_var%i", codeIndex + sBx, A, aux)
                 elseif opc == getOpCode("JUMPIFNOTEQ") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if var%i ~= var%i", codeIndex + sBx, A, aux)
+                    output = output .. string.format("goto #%i if king_var%i ~= king_var%i", codeIndex + sBx, A, aux)
                 elseif opc == getOpCode("JUMPIFLE") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if var%i <= var%i", codeIndex + sBx, A, aux)
+                    output = output .. string.format("goto #%i if king_var%i <= king_var%i", codeIndex + sBx, A, aux)
                 elseif opc == getOpCode("JUMPIFNOTLE") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if var%i > var%i", codeIndex + sBx, A, aux)
+                    output = output .. string.format("goto #%i if king_var%i > king_var%i", codeIndex + sBx, A, aux)
                 elseif opc == getOpCode("JUMPIFLT") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if var%i < var%i", codeIndex + sBx, A, aux)
+                    output = output .. string.format("goto #%i if king_var%i < king_var%i", codeIndex + sBx, A, aux)
                 elseif opc == getOpCode("JUMPIFNOTLT") then
                     addReference(codeIndex, codeIndex + sBx)
-                    output = output .. string.format("goto #%i if var%i >= var%i", codeIndex + sBx, A, aux)
+                    output = output .. string.format("goto #%i if king_var%i >= king_var%i", codeIndex + sBx, A, aux)
                 elseif opc == getOpCode("ADD") then
-                    output = output .. string.format("var%i = var%i + var%i", A, B, C)
+                    output = output .. string.format("king_var%i = king_var%i + king_var%i", A, B, C)
                 elseif opc == getOpCode("ADDK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i + %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i + %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("SUB") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i - var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i - king_var%i", A, B, C)
                 elseif opc == getOpCode("SUBK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i - %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i - %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("MUL") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i * var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i * king_var%i", A, B, C)
                 elseif opc == getOpCode("MULK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i * %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i * %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("DIV") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i / var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i / king_var%i", A, B, C)
                 elseif opc == getOpCode("DIVK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i / %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i / %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("MOD") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i %% var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i %% king_var%i", A, B, C)
                 elseif opc == getOpCode("MODK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i %% %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i %% %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("POW") then
                     output =
                         output ..
-                        (isVarDefined(A) and "" or "local ") .. string.format("var%i = var%i ^ var%i", A, B, C)
+                        (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = king_var%i ^ king_var%i", A, B, C)
                 elseif opc == getOpCode("POWK") then
                     local k = proto.kTable[C + 1] or nilValue
                     output =
                         output ..
                         (isVarDefined(A) and "" or "local ") ..
-                            string.format("var%i = var%i ^ %s", A, B, tostring(k.value))
+                            string.format("king_var%i = king_var%i ^ %s", A, B, tostring(k.value))
                 elseif opc == getOpCode("CALL") then
                     if C > 1 then
                         for j = 1, C - 1 do
-                            output = output .. string.format("var%i", A + j - 1)
+                            output = output .. string.format("king_var%i", A + j - 1)
                             if j < C - 1 then
                                 output = output .. ", "
                             end
                         end
                         output = output .. " = "
                     elseif C == 0 then
-                        output = output .. string.format("var%i, ...", A)
+                        output = output .. string.format("king_var%i, ...", A)
                         output = output .. " = "
                     --for j = 1, proto.maxStackSize do
-                    --    output = output .. string.format("var%i", A + j - 1)
+                    --    output = output .. string.format("king_var%i", A + j - 1)
                     --    if j < proto.maxStackSize - 1 then output = output .. ", " end
                     --end
                     end
                     if nameCall then
                         output = output .. nameCall .. "("
                     else
-                        output = output .. string.format("var%i(", A)
+                        output = output .. string.format("king_var%i(", A)
                     end
                     if B > 1 then
                         if nameCall then
                             for j = 1, B - 2 do
-                                output = output .. string.format("var%i", A + 1 + j) -- exclude self
+                                output = output .. string.format("king_var%i", A + 1 + j) -- exclude self
                                 if j < B - 2 then
                                     output = output .. ", "
                                 end
                             end
                         else
                             for j = 1, B - 1 do
-                                output = output .. string.format("var%i", A + j)
+                                output = output .. string.format("king_var%i", A + j)
                                 if j < B - 1 then
                                     output = output .. ", "
                                 end
                             end
                         end
                     elseif B == 0 then
-                        output = output .. string.format("var%i, ...", A + 1)
+                        output = output .. string.format("king_var%i, ...", A + 1)
                     --for j = 1, proto.maxStackSize do
                     --    if nameCall then
-                    --        output = output .. string.format("var%i", A + 1 + j) -- exclude self
+                    --        output = output .. string.format("king_var%i", A + 1 + j) -- exclude self
                     --    else
-                    --        output = output .. string.format("var%i", A + j)
+                    --        output = output .. string.format("king_var%i", A + j)
                     --    end
                     --    if j < proto.maxStackSize - 1 then output = output .. ", " end
                     --end
@@ -827,10 +827,10 @@ local function disassemble(a1, showOps)
                     nameCall = nil
                     output = output .. ")"
                 elseif opc == getOpCode("NEWTABLE") then
-                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = {}", A)
+                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = {}", A)
                 elseif opc == getOpCode("DUPTABLE") then
                     local t = proto.kTable[Bx + 1].value
-                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("var%i = { ", A)
+                    output = output .. (isVarDefined(A) and "" or "local ") .. string.format("king_var%i = { ", A)
                     for j = 1, t.size do
                         local id = t.ids[j]
                         local k = proto.kTable[id]
@@ -846,7 +846,7 @@ local function disassemble(a1, showOps)
                     output = output .. "\n"
                     for j = 1, C do
                         addTabSpace(depth)
-                        output = output .. string.format("var%i[%i] = var%i\n", A, j + fieldSize - 1, B + j - 1)
+                        output = output .. string.format("king_var%i[%i] = king_var%i\n", A, j + fieldSize - 1, B + j - 1)
                     end
                 elseif opc == getOpCode("CAPTURE") then
                     markedAux = true
@@ -868,17 +868,17 @@ local function disassemble(a1, showOps)
                             if captureType == 0 or captureType == 1 then
                                 output =
                                     output ..
-                                    string.format("-- V nested upvalues[%i] = var%i\n", upvalueIndex, captureIndex)
+                                    string.format("--KING_DECOMPILER Nested king_upvalues[%i] = king_var%i\n", upvalueIndex, captureIndex)
                             elseif captureType == 2 then
                                 output =
                                     output ..
                                     string.format(
-                                        "-- V nested upvalues[%i] = upvalues[%i]\n",
+                                        "--KING_DECOMPILER Nested king_upvalues[%i] = king_upvalues[%i]\n",
                                         upvalueIndex,
                                         captureIndex
                                     )
                             else
-                                error("[NEWCLOSURE] Invalid capture type")
+                                error("KING_DECOMPILER Invalid capture type")
                             end
                         end
                     end
@@ -889,10 +889,10 @@ local function disassemble(a1, showOps)
                     if nextProto.source then
                         output = output .. readProto(nextProto, depth)
                         addTabSpace(depth)
-                        output = output .. string.format("var%i = ", A) .. nextProto.source
+                        output = output .. string.format("king_var%i = ", A) .. nextProto.source
                     else
                         nextProto.source = nil
-                        output = output .. string.format("var%i = ", A) .. readProto(nextProto, depth)
+                        output = output .. string.format("king_var%i = ", A) .. readProto(nextProto, depth)
                     end
                 elseif opc == getOpCode("DUPCLOSURE") then
                     output = output .. "\n"
@@ -912,17 +912,17 @@ local function disassemble(a1, showOps)
                             if captureType == 0 or captureType == 1 then
                                 output =
                                     output ..
-                                    string.format("-- V nested upvalues[%i] = var%i\n", upvalueIndex, captureIndex)
+                                    string.format("--KING_DECOMPILER Nested upvalues[%i] = king_var%i\n", upvalueIndex, captureIndex)
                             elseif captureType == 2 then
                                 output =
                                     output ..
                                     string.format(
-                                        "-- V nested upvalues[%i] = upvalues[%i]\n",
+                                        "--KING_DECOMPILER Nested king_upvalues[%i] = king_upvalues[%i]\n",
                                         upvalueIndex,
                                         captureIndex
                                     )
                             else
-                                error("[DUPCLOSURE] Invalid capture type")
+                                error("KING_DECOMPILER Invalid capture type")
                             end
                         end
                     end
@@ -933,28 +933,28 @@ local function disassemble(a1, showOps)
                     if nextProto.source then
                         output = output .. readProto(nextProto, depth)
                         addTabSpace(depth)
-                        output = output .. string.format("var%i = ", A) .. nextProto.source
+                        output = output .. string.format("king_var%i = ", A) .. nextProto.source
                     else
                         nextProto.source = nil
-                        output = output .. string.format("var%i = ", A) .. readProto(nextProto, depth)
+                        output = output .. string.format("king_var%i = ", A) .. readProto(nextProto, depth)
                     end
                 elseif opc == getOpCode("RETURN") then
                     if B > 1 then
                         output = output .. "return "
                         for j = 1, B - 1 do
-                            output = output .. string.format("var%i", A + j)
+                            output = output .. string.format("king_var%i", A + j)
                             if j < B - 1 then
                                 output = output .. ", "
                             end
                         end
                     elseif B == 0 then
-                        output = output .. string.format("var%i, ...", A)
+                        output = output .. string.format("king_var%i, ...", A)
                     end
                 end
 
                 for _, v in pairs(refData) do
                     if v.codeIndex == codeIndex then
-                        output = output .. " -- referenced by "
+                        output = output .. " --KING_DECOMPILER Referenced by "
                         for j = 1, #v.refs do
                             output = output .. "#" .. v.refs[j]
                             if j < #v.refs then
@@ -973,7 +973,7 @@ local function disassemble(a1, showOps)
         depth = depth - 1
 
         addTabSpace(depth)
-        output = output .. "end\n"
+        output = output .. "end"
         return output
     end
 
