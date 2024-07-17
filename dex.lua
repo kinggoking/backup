@@ -8,7 +8,7 @@
 	
 	Dex is a debugging suite designed to help the user debug games and find any potential vulnerabilities.
 ]]
-
+local decompile = loadstring(game:HttpGet("https://raw.githubusercontent.com/TheSeaweedMonster/Lua-Scripts/main/decompile.lua"))()
 local nodes = {}
 local selection
 local cloneref = cloneref or function(...) return ... end
