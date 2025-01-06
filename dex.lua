@@ -10355,8 +10355,9 @@ Main = (function()
         --env.setfflag = setfflag
         env.request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
         env.decompile = function(scr)
-            local disassemble = decompile
-            local out = disassemble(scr)
+            local disassemble = dumpbytecode
+            local dumped = getscriptbytecode(scr)
+            local out = disassemble(dumped)
             return tostring(out)
         end
         env.protectgui = protect_gui or (syn and syn.protect_gui)
