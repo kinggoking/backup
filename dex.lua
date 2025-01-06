@@ -9,6 +9,7 @@
 	Dex is a debugging suite designed to help the user debug games and find any potential vulnerabilities.
 ]]
 local dumpbytecode = loadstring("https://raw.githubusercontent.com/kinggoking/backup/refs/heads/main/decompile.lua")()
+if type(dumpbytecode) == "function" then print("bytecode dumper success") end
 local nodes = {}
 local selection
 local cloneref = cloneref
