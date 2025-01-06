@@ -10356,7 +10356,7 @@ Main = (function()
         --env.setfflag = setfflag
         env.request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
         env.decompile = function(scr)
-            local disassemble = loadstring(game:HttpGet("https://raw.githubusercontent.com/kinggoking/backup/main/decompile.lua"))()
+            local disassemble = decompile
             local out = disassemble(scr)
             return tostring(out)
         end
