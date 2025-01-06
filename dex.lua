@@ -8,10 +8,10 @@
 	
 	Dex is a debugging suite designed to help the user debug games and find any potential vulnerabilities.
 ]]
-local decompile = decompile or function(...) return ... end
+local decompile = decompile
 local nodes = {}
 local selection
-local cloneref = cloneref or function(...) return ... end
+local cloneref = cloneref
 
 local EmbeddedModules = {
 Explorer = function()
